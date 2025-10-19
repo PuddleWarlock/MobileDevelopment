@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "PocketOrnithology"
 include(":app")
- 
+include(":data")
+include(":domain")
