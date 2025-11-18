@@ -9,4 +9,5 @@ public interface OrnithologyRepository {
     void getBirdInfo(String birdName, RepositoryCallback<BirdInfo> callback);
     void saveObservation(Observation observation, RepositoryCallback<Void> callback);
     void getJournal(RepositoryCallback<List<Observation>> callback);
+    void getObservationById(int id, RepositoryCallback<Observation> callback);
 }

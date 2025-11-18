@@ -16,4 +16,7 @@ public interface ObservationDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(ObservationData observation);
+
+    @Query("SELECT * FROM observations WHERE id = :id LIMIT 1")
+    ObservationData getById(int id);
 }

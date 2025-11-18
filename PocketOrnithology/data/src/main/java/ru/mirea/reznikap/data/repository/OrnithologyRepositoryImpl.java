@@ -11,6 +11,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import ru.mirea.reznikap.data.mappers.ObservationMapper;
+import ru.mirea.reznikap.data.models.ObservationData;
 import ru.mirea.reznikap.data.network.ApiClient;
 import ru.mirea.reznikap.data.network.WikipediaApi;
 import ru.mirea.reznikap.data.network.WikipediaDto;
@@ -43,9 +44,7 @@ public class OrnithologyRepositoryImpl implements OrnithologyRepository {
         executor.execute(() -> {
             try {
                 Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                // Здесь будет логика работы с TFLite моделью
-                // String result = tfliteModel.classify(bitmap);
-                String result = "Синица большая (тест)";
+                String result = "Большая синица";
                 mainThreadHandler.post(() -> callback.onSuccess(result));
             } catch (Exception e) {
                 mainThreadHandler.post(() -> callback.onFailure(e));
@@ -93,6 +92,19 @@ public class OrnithologyRepositoryImpl implements OrnithologyRepository {
                         .map(mapper::mapToDomain)
                         .collect(Collectors.toList());
                 mainThreadHandler.post(() -> callback.onSuccess(journal));
+            } catch (Exception e) {
+                mainThreadHandler.post(() -> callback.onFailure(e));
+            }
+        });
+    }
+
+    @Override
+    public void getObservationById(int id, RepositoryCallback<Observation> callback) {
+        executor.execute(() -> {
+            try {
+                ObservationData data = observationDao.getById(id);
+                Observation observation = mapper.mapToDomain(data);
+                mainThreadHandler.post(() -> callback.onSuccess(observation));
             } catch (Exception e) {
                 mainThreadHandler.post(() -> callback.onFailure(e));
             }

@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.room.runtime)
+    implementation(libs.okhttp)
     annotationProcessor(libs.room.compiler)
     implementation(project(":domain"))
     implementation(libs.appcompat)

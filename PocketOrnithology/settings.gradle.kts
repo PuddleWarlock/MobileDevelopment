@@ -23,3 +23,6 @@ rootProject.name = "PocketOrnithology"
 include(":app")
 include(":data")
 include(":domain")
+include(":scrollviewapp")
+include(":listviewapp")
+include(":recycleviewapp")
