@@ -102,7 +102,7 @@ public class MainActivity extends BaseActivity {
         logoutBtn.setOnClickListener(v -> handleLogout());
 
         saveBtn.setOnClickListener(v -> {
-            // Берем байты из ViewModel, они там надежно хранятся
+             
             byte[] dataToSave = viewModel.getCurrentImageBytes();
 
             if (dataToSave != null) {
@@ -118,19 +118,19 @@ public class MainActivity extends BaseActivity {
         });
 
 
-        // ЛОГИКА СБРОСА (Кнопка "Распознавание" внизу)
+         
         navRecognition.setOnClickListener(v -> {
-            resetUI(); // Возвращаем экран в исходное состояние
+            resetUI();  
         });
 
-        // Навигация в журнал
+         
         navJournal.setOnClickListener(v -> {
-            // Проверяем, гость ли это
+             
             if (viewModel.isGuest()) {
-                // Если гость - показываем сообщение и никуда не переходим
+                 
                 Toast.makeText(this, "Журнал доступен только зарегистрированным пользователям", Toast.LENGTH_SHORT).show();
             } else {
-                // Если авторизован - переходим в журнал
+                 
                 startActivity(new Intent(MainActivity.this, JournalActivity.class));
             }
         });
@@ -143,8 +143,8 @@ public class MainActivity extends BaseActivity {
         galleryBtn.setVisibility(View.VISIBLE);
 
         resultBirdName.setText("");
-        resultImageView.setImageResource(0); // Очистка картинки
-        lastImageBytes = null; // Очистка байтов
+        resultImageView.setImageResource(0);  
+        lastImageBytes = null;  
     }
     private void setupObservers() {
 
@@ -164,13 +164,13 @@ public class MainActivity extends BaseActivity {
         viewModel.getBirdInfo().observe(this, birdInfo -> {
             resultBirdName.setText(birdInfo.name);
 
-            // Показываем результат
+             
             resultCardView.setVisibility(View.VISIBLE);
             if (viewModel.isGuest()) {
-                saveBtn.setVisibility(View.GONE); // Гости не могут сохранять
+                saveBtn.setVisibility(View.GONE);  
                 Toast.makeText(this, "Войдите в аккаунт, чтобы сохранять", Toast.LENGTH_SHORT).show();
             } else {
-                saveBtn.setVisibility(View.VISIBLE); // Авторизованные могут
+                saveBtn.setVisibility(View.VISIBLE);  
             }
             recognizeBtn.setVisibility(View.GONE);
             galleryBtn.setVisibility(View.GONE);
@@ -189,25 +189,25 @@ public class MainActivity extends BaseActivity {
         viewModel.getSaveSuccess().observe(this, saved -> {
             if (saved) {
                 Toast.makeText(this, "Успешно сохранено в журнал!", Toast.LENGTH_SHORT).show();
-                resetUI(); // Сбрасываем экран после сохранения
+                resetUI();  
             }
         });
     }
 
     private String saveImageToInternalStorage(byte[] imageBytes) {
         try {
-            // Создаем уникальное имя файла
+             
             String fileName = "bird_" + System.currentTimeMillis() + ".jpg";
 
-            // Получаем путь к папке приложения (внутреннее хранилище)
+             
             File file = new File(getFilesDir(), fileName);
 
-            // Записываем байты
+             
             FileOutputStream fos = new FileOutputStream(file);
             fos.write(imageBytes);
             fos.close();
 
-            // Возвращаем абсолютный путь к файлу (например, /data/user/0/.../bird_123.jpg)
+             
             return file.getAbsolutePath();
         } catch (IOException e) {
             e.printStackTrace();
@@ -301,7 +301,7 @@ public class MainActivity extends BaseActivity {
                     imageBitmap = (Bitmap) extras.get("data");
                 }
             } else if (requestCode == REQUEST_IMAGE_GALLERY) {
-                // Для галереи используем надежный способ
+                 
                 Uri imageUri = data.getData();
                 if (imageUri != null) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

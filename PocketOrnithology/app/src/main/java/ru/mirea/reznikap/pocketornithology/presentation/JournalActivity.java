@@ -29,7 +29,7 @@ public class JournalActivity extends BaseActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Адаптер с обработкой нажатия
+         
         ObservationAdapter adapter = new ObservationAdapter(observation -> {
             Intent intent = new Intent(this, ObservationDetailActivity.class);
             intent.putExtra("OBSERVATION_ID", observation.id);
@@ -51,7 +51,7 @@ public class JournalActivity extends BaseActivity {
             }
         });
 
-        // Навигация назад в распознавание
+         
         navRecognition.setOnClickListener(v -> {
             Intent intent = new Intent(this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);

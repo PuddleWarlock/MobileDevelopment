@@ -11,9 +11,9 @@ public class GetObservationByIdUseCase {
         this.repository = repository;
     }
 
-    // Возвращает LiveData, как и предполагается в ViewModel
-    // Для этого нужно будет доработать репозиторий и DAO
-    // Пока сделаем заглушку с колбэком
+     
+     
+     
     public void execute(int observationId, RepositoryCallback<Observation> callback) {
         repository.getObservationById(observationId, callback);
     }

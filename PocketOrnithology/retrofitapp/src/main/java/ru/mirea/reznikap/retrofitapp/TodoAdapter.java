@@ -21,7 +21,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
     private List<Todo> todos;
     private OnTodoClickListener onTodoClickListener;
 
-    // Интерфейс для передачи клика в Activity
+     
     public interface OnTodoClickListener {
         void onTodoClick(Todo todo, int position);
     }
@@ -44,23 +44,23 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         Todo todo = todos.get(position);
         holder.textViewTitle.setText(todo.getTitle());
 
-        // Важно: сначала удаляем слушатель, чтобы избежать циклического вызова при прокрутке
+         
         holder.checkBoxCompleted.setOnCheckedChangeListener(null);
         holder.checkBoxCompleted.setChecked(todo.getCompleted());
 
-        // Задание 2: Picasso
-        // Так как в JSONPlaceholder нет картинок, генерируем случайную картинку по ID
+         
+         
         String imageUrl = "https://picsum.photos/200?random=" + todo.getId();
 
         Picasso.get()
                 .load(imageUrl)
-                .placeholder(R.drawable.ic_launcher_foreground) // Заглушка (должна быть в ресурсах)
-                .error(R.drawable.ic_launcher_background)       // Ошибка (должна быть в ресурсах)
-                .resize(150, 150)                       // Изменение размера
-                .centerCrop()                                   // Обрезка
+                .placeholder(R.drawable.ic_launcher_foreground)  
+                .error(R.drawable.ic_launcher_background)        
+                .resize(150, 150)                        
+                .centerCrop()                                    
                 .into(holder.imageView);
 
-        // Задание: Обновление CheckBox
+         
         holder.checkBoxCompleted.setOnCheckedChangeListener((buttonView, isChecked) -> {
             todo.setCompleted(isChecked);
             onTodoClickListener.onTodoClick(todo, position);

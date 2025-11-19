@@ -38,7 +38,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(RecognitionViewModel.class)) {
-            // Создаем все необходимые UseCases здесь
+             
             return (T) new RecognitionViewModel(
                     new RecognizeBirdUseCase(ornithologyRepository),
                     new GetBirdInfoUseCase(ornithologyRepository),

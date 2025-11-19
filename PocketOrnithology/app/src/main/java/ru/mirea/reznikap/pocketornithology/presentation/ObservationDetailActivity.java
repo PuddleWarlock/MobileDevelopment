@@ -32,8 +32,8 @@ public class ObservationDetailActivity extends BaseActivity {
         TextView nameView = findViewById(R.id.detailBirdName);
         TextView dateView = findViewById(R.id.detailDate);
         TextView descView = findViewById(R.id.detailDescription);
-        TextView navJournal = findViewById(R.id.navJournal); // Нижняя панель - кнопка Журнал
-        TextView navRecog = findViewById(R.id.navRecognition); // Или добавьте ID в XML
+        TextView navJournal = findViewById(R.id.navJournal);  
+        TextView navRecog = findViewById(R.id.navRecognition);  
 
         ViewModelFactory factory = new ViewModelFactory(getApplicationContext());
         ObservationDetailsViewModel viewModel = new ViewModelProvider(this, factory).get(ObservationDetailsViewModel.class);
@@ -66,10 +66,10 @@ public class ObservationDetailActivity extends BaseActivity {
                 }
             });
 
-            // Навигация (просто закрываем эту активити, возвращаясь в журнал)
-            // Находим TextView "Журнал" в нижнем меню, но так как мы уже "в журнале",
-            // по сути это действие "назад".
-            // В макете у вас нижняя навигация. Кнопка "Распознавание" должна вести на MainActivity
+             
+             
+             
+             
 
         }
     }

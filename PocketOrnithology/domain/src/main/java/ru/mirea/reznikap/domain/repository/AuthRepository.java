@@ -5,7 +5,7 @@ public interface AuthRepository {
     void register(String email, String password, RepositoryCallback<Void> callback);
     void logout();
 
-    void setGuestMode(); // Установить режим гостя
-    boolean isGuest();   // Проверка, гость ли это
+    void setGuestMode();  
+    boolean isGuest();    
     String getUserName();
 }

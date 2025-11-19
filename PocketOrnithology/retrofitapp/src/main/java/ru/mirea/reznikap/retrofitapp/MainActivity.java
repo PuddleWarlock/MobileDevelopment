@@ -32,12 +32,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); // Убедитесь, что в activity_main.xml есть RecyclerView
+        setContentView(R.layout.activity_main);  
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // 1. Настройка Retrofit
+         
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
         apiService = retrofit.create(ApiService.class);
 
-        // 2. Получение списка задач (GET)
+         
         fetchTodos();
     }
 
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Todo> todos = response.body();
 
-                    // Инициализация адаптера с обработкой клика (PUT запрос)
+                     
                     todoAdapter = new TodoAdapter(MainActivity.this, todos, (todo, position) -> {
                         updateTodoStatus(todo);
                     });
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // Задание со стр. 12: Отправка запроса на обновление (PUT)
+     
     private void updateTodoStatus(Todo todo) {
         Call<Todo> call = apiService.updateTodo(todo.getId(), todo);
 

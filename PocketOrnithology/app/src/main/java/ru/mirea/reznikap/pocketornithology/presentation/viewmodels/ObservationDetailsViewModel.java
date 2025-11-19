@@ -29,7 +29,7 @@ public class ObservationDetailsViewModel extends ViewModel {
     }
 
     public void loadObservation(int observationId) {
-        // Временный LiveData для данных из БД
+         
         MutableLiveData<Observation> observationFromDb = new MutableLiveData<>();
         combinedDetails.addSource(observationFromDb, observation -> {
             if (observation != null) {
@@ -45,17 +45,17 @@ public class ObservationDetailsViewModel extends ViewModel {
             }
             @Override
             public void onFailure(Exception e) {
-                // Обработка ошибки
+                 
             }
         });
     }
 
     private void fetchFreshInfo(Observation currentObservation) {
-        // Временный LiveData для данных из сети
+         
         MutableLiveData<BirdInfo> freshInfoFromApi = new MutableLiveData<>();
         combinedDetails.addSource(freshInfoFromApi, freshInfo -> {
             if (freshInfo != null) {
-                // Обновляем описание в нашем объекте и сообщаем наблюдателям
+                 
                 currentObservation.description = freshInfo.description;
                 combinedDetails.setValue(currentObservation);
             }
@@ -68,7 +68,7 @@ public class ObservationDetailsViewModel extends ViewModel {
             }
             @Override
             public void onFailure(Exception e) {
-                // Обработка ошибки
+                 
             }
         });
     }

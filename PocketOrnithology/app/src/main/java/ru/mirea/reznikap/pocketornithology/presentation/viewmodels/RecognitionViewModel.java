@@ -24,7 +24,7 @@ public class RecognitionViewModel extends ViewModel {
     private final RecognizeBirdUseCase recognizeBirdUseCase;
     private final GetBirdInfoUseCase getBirdInfoUseCase;
     private final SaveObservationUseCase saveObservationUseCase;
-    private final LogoutUseCase logoutUseCase; // Добавляем LogoutUseCase
+    private final LogoutUseCase logoutUseCase;  
     private final GetUserNameUseCase getUserNameUseCase;
     private final CheckIsGuestUseCase checkIsGuestUseCase;
 
@@ -60,7 +60,7 @@ public class RecognitionViewModel extends ViewModel {
     public LiveData<Boolean> getIsLoading() { return isLoading; }
     public LiveData<String> getError() { return error; }
     public LiveData<Boolean> getSaveSuccess() { return saveSuccess; }
-    public LiveData<Boolean> getLogoutEvent() { return logoutEvent; } // Геттер для события
+    public LiveData<Boolean> getLogoutEvent() { return logoutEvent; }  
     public LiveData<Bitmap> getImageBitmap() { return imageBitmap; }
     public byte[] getCurrentImageBytes() { return currentImageBytes; }
 
@@ -103,9 +103,9 @@ public class RecognitionViewModel extends ViewModel {
         if (currentBirdInfo == null) return;
 
         Observation observation = new Observation(
-                0, // ID автогенерируется
+                0,  
                 currentBirdInfo.name,
-                currentBirdInfo.description, // Сохраняем описание
+                currentBirdInfo.description,  
                 photoPath,
                 System.currentTimeMillis()
         );
@@ -122,10 +122,10 @@ public class RecognitionViewModel extends ViewModel {
         });
     }
 
-    // Новый метод для выхода из аккаунта
+     
     public void logout() {
         logoutUseCase.execute();
-        logoutEvent.setValue(true); // Сообщаем View, что нужно выполнить навигацию
+        logoutEvent.setValue(true);  
     }
 
     public String getUserName() {

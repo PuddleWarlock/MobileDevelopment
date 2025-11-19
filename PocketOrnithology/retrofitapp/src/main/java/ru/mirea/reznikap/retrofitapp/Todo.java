@@ -22,7 +22,7 @@ public class Todo {
         this.completed = completed;
     }
 
-    // Getters and Setters
+     
     public Integer getId() { return id; }
     public String getTitle() { return title; }
     public Boolean getCompleted() { return completed; }

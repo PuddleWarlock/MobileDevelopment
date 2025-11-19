@@ -14,7 +14,7 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
-        <!-- Изображение для Picasso (Задание 2) -->
+        
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="80dp"

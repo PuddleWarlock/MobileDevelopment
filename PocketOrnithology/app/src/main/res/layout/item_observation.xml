@@ -6,7 +6,7 @@
     android:layout_marginBottom="16dp"
     android:paddingHorizontal="16dp">
 
-    <!-- Розовый фон карточки -->
+    
     <View
         android:id="@+id/cardBackground"
         android:layout_width="0dp"
@@ -17,7 +17,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Фотография -->
+    
     <androidx.cardview.widget.CardView
         android:id="@+id/imageCard"
         android:layout_width="80dp"

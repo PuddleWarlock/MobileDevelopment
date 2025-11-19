@@ -20,9 +20,9 @@ public class BaseActivity extends AppCompatActivity {
         WindowInsetsControllerCompat windowInsetsController =
                 WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
 
-        // Скрываем системные панели (статус-бар и навигацию)
+         
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
-        // Позволяем вызвать их свайпом от края, и они исчезнут сами
+         
         windowInsetsController.setSystemBarsBehavior(
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         );

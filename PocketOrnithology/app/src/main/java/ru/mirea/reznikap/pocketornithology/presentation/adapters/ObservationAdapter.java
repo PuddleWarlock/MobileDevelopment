@@ -70,7 +70,7 @@ public class ObservationAdapter extends RecyclerView.Adapter<ObservationAdapter.
 
         public void bind(Observation item, OnItemClickListener listener) {
             name.setText(item.birdName);
-            location.setText("Москва"); // Хардкод по макету, так как геолокации пока нет
+            location.setText("Москва");  
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
             date.setText(sdf.format(new Date(item.timestamp)));
