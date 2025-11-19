@@ -55,8 +55,8 @@ public class ObservationDetailsViewModel extends ViewModel {
         MutableLiveData<BirdInfo> freshInfoFromApi = new MutableLiveData<>();
         combinedDetails.addSource(freshInfoFromApi, freshInfo -> {
             if (freshInfo != null) {
-                 
                 currentObservation.description = freshInfo.description;
+                currentObservation.wikiImageUrl = freshInfo.imageUrl;
                 combinedDetails.setValue(currentObservation);
             }
         });

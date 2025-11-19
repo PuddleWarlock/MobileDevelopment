@@ -18,5 +18,11 @@ public class WikipediaDto {
         public String title;
         @SerializedName("extract")
         public String extract;
+        @SerializedName("thumbnail")
+        public Thumbnail thumbnail;
+    }
+    public static class Thumbnail {
+        @SerializedName("source")
+        public String source;
     }
 }

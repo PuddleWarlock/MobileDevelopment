@@ -4,8 +4,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -20,11 +26,6 @@ import ru.mirea.reznikap.domain.models.BirdInfo;
 import ru.mirea.reznikap.domain.models.Observation;
 import ru.mirea.reznikap.domain.repository.OrnithologyRepository;
 import ru.mirea.reznikap.domain.repository.RepositoryCallback;
-
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 public class OrnithologyRepositoryImpl implements OrnithologyRepository {
 
@@ -57,14 +58,26 @@ public class OrnithologyRepositoryImpl implements OrnithologyRepository {
         wikipediaApi.getBirdExtract(birdName).enqueue(new Callback<WikipediaDto>() {
             @Override
             public void onResponse(@NonNull Call<WikipediaDto> call, @NonNull Response<WikipediaDto> response) {
-                if (response.isSuccessful() && response.body() != null) {
+                if (response.isSuccessful() && response.body() != null && response.body().query.pages != null) {
                     WikipediaDto.Page page = response.body().query.pages.values().iterator().next();
-                    BirdInfo info = new BirdInfo(page.title, page.extract, "");
+
+
+                    String imageUrl = "";
+                    if (page.thumbnail != null) {
+                        imageUrl = page.thumbnail.source;
+                        Log.d("WikiImage", "Ссылка на фото: " + imageUrl);
+                    }else {
+                        Log.d("WikiImage", "У этой статьи нет thumbnail (миниатюры)");
+                    }
+
+
+                    BirdInfo info = new BirdInfo(page.title, page.extract, imageUrl);
                     callback.onSuccess(info);
                 } else {
                     callback.onFailure(new Exception("API Error: " + response.code()));
                 }
             }
+
             @Override
             public void onFailure(@NonNull Call<WikipediaDto> call, @NonNull Throwable t) {
                 callback.onFailure(new Exception(t));

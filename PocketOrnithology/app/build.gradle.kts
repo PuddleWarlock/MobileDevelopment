@@ -41,6 +41,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.room.runtime)
+    implementation(libs.glide)
+    annotationProcessor(libs.glide.compiler)
     annotationProcessor(libs.room.compiler)
     implementation(project(":domain"))
     implementation(project(":data"))

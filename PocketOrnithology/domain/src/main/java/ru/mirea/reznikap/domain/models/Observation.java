@@ -6,6 +6,7 @@ public class Observation {
     public String description;
     public final String photoPath;
     public final long timestamp;
+    public String wikiImageUrl;
 
     public Observation(int id, String birdName, String photoPath, long timestamp) {
         this.id = id;

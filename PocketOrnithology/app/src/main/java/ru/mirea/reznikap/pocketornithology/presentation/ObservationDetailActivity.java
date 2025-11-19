@@ -4,10 +4,16 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.lifecycle.ViewModelProvider;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -32,8 +38,9 @@ public class ObservationDetailActivity extends BaseActivity {
         TextView nameView = findViewById(R.id.detailBirdName);
         TextView dateView = findViewById(R.id.detailDate);
         TextView descView = findViewById(R.id.detailDescription);
-        TextView navJournal = findViewById(R.id.navJournal);  
-        TextView navRecog = findViewById(R.id.navRecognition);  
+        TextView navJournal = findViewById(R.id.navJournal);
+        TextView navRecog = findViewById(R.id.navRecognition);
+        ImageView wikiImageView = findViewById(R.id.wikiImageView);
 
         ViewModelFactory factory = new ViewModelFactory(getApplicationContext());
         ObservationDetailsViewModel viewModel = new ViewModelProvider(this, factory).get(ObservationDetailsViewModel.class);
@@ -64,12 +71,22 @@ public class ObservationDetailActivity extends BaseActivity {
                         imageView.setImageBitmap(bmp);
                     }
                 }
+                if (observation.wikiImageUrl != null && !observation.wikiImageUrl.isEmpty()) {
+
+                    GlideUrl urlWithHeaders = new GlideUrl(observation.wikiImageUrl, new LazyHeaders.Builder()
+                            .addHeader("User-Agent", "PocketOrnithology/1.0 (test@example.com)")
+                            .build());
+                    Glide.with(this)
+                            .load(urlWithHeaders)
+                            .placeholder(R.drawable.ic_launcher_foreground)
+                            .error(R.drawable.ic_launcher_background)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .into(wikiImageView);
+                } else {
+                    //wikiImageView.setVisibility(View.GONE);
+                }
             });
 
-             
-             
-             
-             
 
         }
     }

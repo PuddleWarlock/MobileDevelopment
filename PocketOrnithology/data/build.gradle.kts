@@ -34,6 +34,7 @@ android {
 dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation(libs.picasso)
     implementation(libs.room.runtime)
     implementation(libs.okhttp)
     annotationProcessor(libs.room.compiler)
