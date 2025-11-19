@@ -20,12 +20,10 @@ import ru.mirea.reznikap.domain.usecase.LoginUseCase;
 import ru.mirea.reznikap.domain.usecase.RegisterUseCase;
 import ru.mirea.reznikap.pocketornithology.R;
 
-public class AuthActivity extends AppCompatActivity {
+public class AuthActivity extends BaseActivity {
 
     private EditText emailEditText;
     private EditText passwordEditText;
-    private Button loginButton;
-    private Button registerButton;
 
     private LoginUseCase loginUseCase;
     private RegisterUseCase registerUseCase;

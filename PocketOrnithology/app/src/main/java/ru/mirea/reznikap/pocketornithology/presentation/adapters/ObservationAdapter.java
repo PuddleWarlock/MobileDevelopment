@@ -24,24 +24,31 @@ import ru.mirea.reznikap.pocketornithology.R;
 public class ObservationAdapter extends RecyclerView.Adapter<ObservationAdapter.ObservationViewHolder> {
 
     private List<Observation> observations = new ArrayList<>();
+    private final OnItemClickListener listener;
 
-    // Метод для обновления данных в адаптере
+    public interface OnItemClickListener {
+        void onItemClick(Observation observation);
+    }
+
+    public ObservationAdapter(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
     public void setObservations(List<Observation> observations) {
         this.observations = observations;
-        notifyDataSetChanged(); // Уведомляем RecyclerView об обновлении
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public ObservationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_observation, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_observation, parent, false);
         return new ObservationViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ObservationViewHolder holder, int position) {
-        holder.bind(observations.get(position));
+        holder.bind(observations.get(position), listener);
     }
 
     @Override
@@ -49,36 +56,34 @@ public class ObservationAdapter extends RecyclerView.Adapter<ObservationAdapter.
         return observations.size();
     }
 
-    // ViewHolder хранит ссылки на View элементы
     static class ObservationViewHolder extends RecyclerView.ViewHolder {
-        private final ImageView birdImageView;
-        private final TextView birdNameTextView;
-        private final TextView dateTextView;
+        ImageView image;
+        TextView name, date, location;
 
         public ObservationViewHolder(@NonNull View itemView) {
             super(itemView);
-            birdImageView = itemView.findViewById(R.id.bird_image_view);
-            birdNameTextView = itemView.findViewById(R.id.bird_name_text_view);
-            dateTextView = itemView.findViewById(R.id.date_text_view);
+            image = itemView.findViewById(R.id.bird_image_view);
+            name = itemView.findViewById(R.id.bird_name_text_view);
+            date = itemView.findViewById(R.id.date_text_view);
+            location = itemView.findViewById(R.id.location_text_view);
         }
 
-        public void bind(Observation observation) {
-            birdNameTextView.setText(observation.birdName);
+        public void bind(Observation item, OnItemClickListener listener) {
+            name.setText(item.birdName);
+            location.setText("Москва"); // Хардкод по макету, так как геолокации пока нет
 
-            // Форматирование даты
             SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
-            dateTextView.setText(sdf.format(new Date(observation.timestamp)));
+            date.setText(sdf.format(new Date(item.timestamp)));
 
-            // Загрузка изображения (если путь есть)
-            if (observation.photoPath != null && !observation.photoPath.isEmpty()) {
-                File imgFile = new File(observation.photoPath);
+            if (item.photoPath != null) {
+                File imgFile = new File(item.photoPath);
                 if (imgFile.exists()) {
                     Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                    birdImageView.setImageBitmap(myBitmap);
-                } else {
-                    birdImageView.setImageResource(R.drawable.ic_launcher_foreground); // Заглушка
+                    image.setImageBitmap(myBitmap);
                 }
             }
+
+            itemView.setOnClickListener(v -> listener.onItemClick(item));
         }
     }
 }

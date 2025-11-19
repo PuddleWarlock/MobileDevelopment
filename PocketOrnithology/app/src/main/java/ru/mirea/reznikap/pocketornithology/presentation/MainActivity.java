@@ -3,14 +3,20 @@ package ru.mirea.reznikap.pocketornithology.presentation;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,11 +24,15 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import ru.mirea.reznikap.data.repository.AuthRepositoryImpl;
@@ -38,71 +48,155 @@ import ru.mirea.reznikap.domain.usecase.RecognizeBirdUseCase;
 import ru.mirea.reznikap.pocketornithology.presentation.factories.ViewModelFactory;
 import ru.mirea.reznikap.pocketornithology.presentation.viewmodels.RecognitionViewModel;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_IMAGE_GALLERY = 2;
     private static final int REQUEST_CAMERA_PERMISSION = 100;
     private static final int REQUEST_STORAGE_PERMISSION = 101;
-    private TextView resultTextView;
+    private TextView resultBirdName;
+    private ImageView resultImageView;
+    private CardView resultCardView;
+    private Button recognizeBtn, galleryBtn, saveBtn, logoutBtn;
     private ProgressBar progressBar;
+    private TextView navJournal, navRecognition;
+
     private RecognitionViewModel viewModel;
+    private byte[] lastImageBytes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
-        // --- 1. Инициализация ViewModel через Фабрику (ПРАВИЛЬНЫЙ СПОСОБ) ---
-        ViewModelFactory viewModelFactory = new ViewModelFactory(getApplicationContext());
-        viewModel = new ViewModelProvider(this, viewModelFactory).get(RecognitionViewModel.class);
 
-        // --- 2. Инициализация UI ---
-        resultTextView = findViewById(R.id.resultTextView); // Используйте свои ID
-        progressBar = findViewById(R.id.progressBar); // Убедитесь, что ProgressBar есть в layout
-        Button galleryBtn = findViewById(R.id.buttonGallery);
-        Button recognizeBtn = findViewById(R.id.buttonRecognize);
-        Button logoutButton = findViewById(R.id.buttonLogout);
-        Button journalBtn = findViewById(R.id.buttonJournal);
-        journalBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, JournalActivity.class);
-            startActivity(intent);
-        });
-
-        // --- 3. Настройка наблюдателей (Observers) ---
+        initViews();
+        initViewModel();
+        setupListeners();
         setupObservers();
-
-        // --- 4. Настройка слушателей нажатий ---
-        recognizeBtn.setOnClickListener(v -> checkCameraPermissionAndLaunch());
-        galleryBtn.setOnClickListener(v -> checkStoragePermissionAndLaunch());
-        logoutButton.setOnClickListener(v -> handleLogout());
     }
 
+    private void initViews() {
+        resultBirdName = findViewById(R.id.resultBirdName);
+        resultImageView = findViewById(R.id.resultImageView);
+        resultCardView = findViewById(R.id.resultCardView);
+        recognizeBtn = findViewById(R.id.buttonRecognize);
+        galleryBtn = findViewById(R.id.buttonGallery);
+        saveBtn = findViewById(R.id.buttonSave);
+        logoutBtn = findViewById(R.id.buttonLogout);
+        progressBar = findViewById(R.id.progressBar);
+        navJournal = findViewById(R.id.navJournal);
+        navRecognition = findViewById(R.id.navRecognition);
+    }
+
+    private void initViewModel() {
+        ViewModelFactory factory = new ViewModelFactory(getApplicationContext());
+        viewModel = new ViewModelProvider(this, factory).get(RecognitionViewModel.class);
+    }
+
+    private void setupListeners() {
+        recognizeBtn.setOnClickListener(v -> checkCameraPermissionAndLaunch());
+        galleryBtn.setOnClickListener(v -> checkStoragePermissionAndLaunch());
+        logoutBtn.setOnClickListener(v -> handleLogout());
+
+        saveBtn.setOnClickListener(v -> {
+            // Берем байты из ViewModel, они там надежно хранятся
+            byte[] dataToSave = viewModel.getCurrentImageBytes();
+
+            if (dataToSave != null) {
+                String path = saveImageToInternalStorage(dataToSave);
+                if (path != null) {
+                    viewModel.saveCurrentObservation(path);
+                } else {
+                    Toast.makeText(this, "Ошибка записи файла", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Нет изображения для сохранения", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+        // ЛОГИКА СБРОСА (Кнопка "Распознавание" внизу)
+        navRecognition.setOnClickListener(v -> {
+            resetUI(); // Возвращаем экран в исходное состояние
+        });
+
+        // Навигация в журнал
+        navJournal.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, JournalActivity.class));
+
+        });
+    }
+    private void resetUI() {
+        resultCardView.setVisibility(View.INVISIBLE);
+        saveBtn.setVisibility(View.GONE);
+
+        recognizeBtn.setVisibility(View.VISIBLE);
+        galleryBtn.setVisibility(View.VISIBLE);
+
+        resultBirdName.setText("");
+        resultImageView.setImageResource(0); // Очистка картинки
+        lastImageBytes = null; // Очистка байтов
+    }
     private void setupObservers() {
-        viewModel.getIsLoading().observe(this, isLoading -> {
-            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        });
+        viewModel.getIsLoading().observe(this, isLoading ->
+                progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE));
 
+
+        viewModel.getImageBitmap().observe(this, bitmap -> {
+            if (bitmap != null) {
+                resultImageView.setImageBitmap(bitmap);
+            }
+        });
         viewModel.getBirdInfo().observe(this, birdInfo -> {
-            resultTextView.setText(birdInfo.name + "\n\n" + birdInfo.description);
+            resultBirdName.setText(birdInfo.name);
+
+            // Показываем результат
+            resultCardView.setVisibility(View.VISIBLE);
+            saveBtn.setVisibility(View.VISIBLE);
+            recognizeBtn.setVisibility(View.GONE);
+            galleryBtn.setVisibility(View.GONE);
         });
 
-        viewModel.getError().observe(this, errorMessage -> {
-            Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
-            resultTextView.setText("Произошла ошибка");
-        });
+        viewModel.getError().observe(this, errorMsg ->
+                Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show());
 
-        // Новый наблюдатель для события выхода из аккаунта
-        viewModel.getLogoutEvent().observe(this, isLoggedOut -> {
-            if (isLoggedOut) {
-                Toast.makeText(this, "Вы вышли из аккаунта", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(MainActivity.this, AuthActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+        viewModel.getLogoutEvent().observe(this, loggedOut -> {
+            if (loggedOut) {
+                startActivity(new Intent(this, AuthActivity.class));
                 finish();
             }
         });
+
+        viewModel.getSaveSuccess().observe(this, saved -> {
+            if (saved) {
+                Toast.makeText(this, "Успешно сохранено в журнал!", Toast.LENGTH_SHORT).show();
+                resetUI(); // Сбрасываем экран после сохранения
+            }
+        });
+    }
+
+    private String saveImageToInternalStorage(byte[] imageBytes) {
+        try {
+            // Создаем уникальное имя файла
+            String fileName = "bird_" + System.currentTimeMillis() + ".jpg";
+
+            // Получаем путь к папке приложения (внутреннее хранилище)
+            File file = new File(getFilesDir(), fileName);
+
+            // Записываем байты
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(imageBytes);
+            fos.close();
+
+            // Возвращаем абсолютный путь к файлу (например, /data/user/0/.../bird_123.jpg)
+            return file.getAbsolutePath();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private void checkCameraPermissionAndLaunch() {
@@ -191,10 +285,14 @@ public class MainActivity extends AppCompatActivity {
                     imageBitmap = (Bitmap) extras.get("data");
                 }
             } else if (requestCode == REQUEST_IMAGE_GALLERY) {
-                Log.d(TAG, "Получен результат от галереи.");
-                Uri selectedImageUri = data.getData();
-                if (selectedImageUri != null) {
-                    imageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
+                // Для галереи используем надежный способ
+                Uri imageUri = data.getData();
+                if (imageUri != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        imageBitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(getContentResolver(), imageUri));
+                    } else {
+                        imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                    }
                 }
             }
         } catch (IOException e) {

@@ -1,5 +1,6 @@
 package ru.mirea.reznikap.pocketornithology.presentation;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -15,43 +16,46 @@ import ru.mirea.reznikap.pocketornithology.presentation.adapters.ObservationAdap
 import ru.mirea.reznikap.pocketornithology.presentation.factories.ViewModelFactory;
 import ru.mirea.reznikap.pocketornithology.presentation.viewmodels.JournalViewModel;
 
-public class JournalActivity extends AppCompatActivity {
-
-    private JournalViewModel viewModel;
-    private ObservationAdapter adapter;
-    private TextView emptyView;
+public class JournalActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_journal);
 
-        // Инициализация RecyclerView
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        emptyView = findViewById(R.id.empty_view);
+        TextView emptyView = findViewById(R.id.empty_view);
+        TextView navRecognition = findViewById(R.id.navRecognition);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ObservationAdapter();
+
+        // Адаптер с обработкой нажатия
+        ObservationAdapter adapter = new ObservationAdapter(observation -> {
+            Intent intent = new Intent(this, ObservationDetailActivity.class);
+            intent.putExtra("OBSERVATION_ID", observation.id);
+            startActivity(intent);
+        });
         recyclerView.setAdapter(adapter);
 
-        // Инициализация ViewModel
         ViewModelFactory factory = new ViewModelFactory(getApplicationContext());
-        viewModel = new ViewModelProvider(this, factory).get(JournalViewModel.class);
+        JournalViewModel viewModel = new ViewModelProvider(this, factory).get(JournalViewModel.class);
 
-        // Подписка на данные
-        viewModel.getObservations().observe(this, observations -> {
-            if (observations == null || observations.isEmpty()) {
+        viewModel.getObservations().observe(this, list -> {
+            if (list.isEmpty()) {
                 recyclerView.setVisibility(View.GONE);
                 emptyView.setVisibility(View.VISIBLE);
             } else {
                 recyclerView.setVisibility(View.VISIBLE);
                 emptyView.setVisibility(View.GONE);
-                adapter.setObservations(observations);
+                adapter.setObservations(list);
             }
         });
 
-        viewModel.getError().observe(this, errorMsg -> {
-            Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
+        // Навигация назад в распознавание
+        navRecognition.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
         });
     }
 }

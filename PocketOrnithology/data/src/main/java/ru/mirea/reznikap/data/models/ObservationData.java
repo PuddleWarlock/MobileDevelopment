@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey;
 public class ObservationData {
     @PrimaryKey(autoGenerate = true)
     public int id;
+    public String description;
     public String birdName;
     public String photoPath;
     public long timestamp;
