@@ -122,6 +122,14 @@ public class RecognitionViewModel extends ViewModel {
         });
     }
 
+    public void resetState() {
+        currentBirdInfo = null;
+        currentImageBytes = null;
+        birdInfo.setValue(null);
+        imageBitmap.setValue(null);
+        saveSuccess.setValue(false);
+    }
+
      
     public void logout() {
         logoutUseCase.execute();
