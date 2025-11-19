@@ -125,8 +125,14 @@ public class MainActivity extends BaseActivity {
 
         // Навигация в журнал
         navJournal.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, JournalActivity.class));
-
+            // Проверяем, гость ли это
+            if (viewModel.isGuest()) {
+                // Если гость - показываем сообщение и никуда не переходим
+                Toast.makeText(this, "Журнал доступен только зарегистрированным пользователям", Toast.LENGTH_SHORT).show();
+            } else {
+                // Если авторизован - переходим в журнал
+                startActivity(new Intent(MainActivity.this, JournalActivity.class));
+            }
         });
     }
     private void resetUI() {
@@ -141,6 +147,11 @@ public class MainActivity extends BaseActivity {
         lastImageBytes = null; // Очистка байтов
     }
     private void setupObservers() {
+
+        TextView titleView = findViewById(R.id.titleTextView);
+        String userName = viewModel.getUserName();
+        titleView.setText("Привет, " + userName);
+
         viewModel.getIsLoading().observe(this, isLoading ->
                 progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE));
 
@@ -155,7 +166,12 @@ public class MainActivity extends BaseActivity {
 
             // Показываем результат
             resultCardView.setVisibility(View.VISIBLE);
-            saveBtn.setVisibility(View.VISIBLE);
+            if (viewModel.isGuest()) {
+                saveBtn.setVisibility(View.GONE); // Гости не могут сохранять
+                Toast.makeText(this, "Войдите в аккаунт, чтобы сохранять", Toast.LENGTH_SHORT).show();
+            } else {
+                saveBtn.setVisibility(View.VISIBLE); // Авторизованные могут
+            }
             recognizeBtn.setVisibility(View.GONE);
             galleryBtn.setVisibility(View.GONE);
         });

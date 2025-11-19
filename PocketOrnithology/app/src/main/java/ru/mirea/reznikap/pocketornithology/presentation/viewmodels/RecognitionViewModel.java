@@ -12,7 +12,9 @@ import ru.mirea.reznikap.domain.models.Observation;
 import ru.mirea.reznikap.domain.repository.AuthRepository;
 import ru.mirea.reznikap.domain.repository.OrnithologyRepository;
 import ru.mirea.reznikap.domain.repository.RepositoryCallback;
+import ru.mirea.reznikap.domain.usecase.CheckIsGuestUseCase;
 import ru.mirea.reznikap.domain.usecase.GetBirdInfoUseCase;
+import ru.mirea.reznikap.domain.usecase.GetUserNameUseCase;
 import ru.mirea.reznikap.domain.usecase.LogoutUseCase;
 import ru.mirea.reznikap.domain.usecase.RecognizeBirdUseCase;
 import ru.mirea.reznikap.domain.usecase.SaveObservationUseCase;
@@ -23,6 +25,8 @@ public class RecognitionViewModel extends ViewModel {
     private final GetBirdInfoUseCase getBirdInfoUseCase;
     private final SaveObservationUseCase saveObservationUseCase;
     private final LogoutUseCase logoutUseCase; // Добавляем LogoutUseCase
+    private final GetUserNameUseCase getUserNameUseCase;
+    private final CheckIsGuestUseCase checkIsGuestUseCase;
 
     private final MutableLiveData<String> recognitionResult = new MutableLiveData<>();
     private final MutableLiveData<BirdInfo> birdInfo = new MutableLiveData<>();
@@ -35,11 +39,20 @@ public class RecognitionViewModel extends ViewModel {
     private byte[] currentImageBytes;
     private BirdInfo currentBirdInfo;
 
-    public RecognitionViewModel(OrnithologyRepository ornithologyRepository, AuthRepository authRepository) {
-        this.recognizeBirdUseCase = new RecognizeBirdUseCase(ornithologyRepository);
-        this.getBirdInfoUseCase = new GetBirdInfoUseCase(ornithologyRepository);
-        this.saveObservationUseCase = new SaveObservationUseCase(ornithologyRepository);
-        this.logoutUseCase = new LogoutUseCase(authRepository); // Инициализируем
+    public RecognitionViewModel(
+            RecognizeBirdUseCase recognizeBirdUseCase,
+            GetBirdInfoUseCase getBirdInfoUseCase,
+            SaveObservationUseCase saveObservationUseCase,
+            LogoutUseCase logoutUseCase,
+            GetUserNameUseCase getUserNameUseCase,
+            CheckIsGuestUseCase checkIsGuestUseCase
+    ) {
+        this.recognizeBirdUseCase = recognizeBirdUseCase;
+        this.getBirdInfoUseCase = getBirdInfoUseCase;
+        this.saveObservationUseCase = saveObservationUseCase;
+        this.logoutUseCase = logoutUseCase;
+        this.getUserNameUseCase = getUserNameUseCase;
+        this.checkIsGuestUseCase = checkIsGuestUseCase;
     }
 
     public LiveData<String> getRecognitionResult() { return recognitionResult; }
@@ -113,5 +126,13 @@ public class RecognitionViewModel extends ViewModel {
     public void logout() {
         logoutUseCase.execute();
         logoutEvent.setValue(true); // Сообщаем View, что нужно выполнить навигацию
+    }
+
+    public String getUserName() {
+        return getUserNameUseCase.execute();
+    }
+
+    public boolean isGuest() {
+        return checkIsGuestUseCase.execute();
     }
 }

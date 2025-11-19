@@ -14,10 +14,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import ru.mirea.reznikap.data.repository.AuthRepositoryImpl;
+import ru.mirea.reznikap.data.storage.UserPrefsStorage;
 import ru.mirea.reznikap.domain.repository.AuthRepository;
 import ru.mirea.reznikap.domain.repository.RepositoryCallback;
 import ru.mirea.reznikap.domain.usecase.LoginUseCase;
 import ru.mirea.reznikap.domain.usecase.RegisterUseCase;
+import ru.mirea.reznikap.domain.usecase.SetGuestModeUseCase;
 import ru.mirea.reznikap.pocketornithology.R;
 
 public class AuthActivity extends BaseActivity {
@@ -27,6 +29,7 @@ public class AuthActivity extends BaseActivity {
 
     private LoginUseCase loginUseCase;
     private RegisterUseCase registerUseCase;
+    private SetGuestModeUseCase setGuestModeUseCase;
     private FirebaseAuth mAuth;
 
     @Override
@@ -50,14 +53,21 @@ public class AuthActivity extends BaseActivity {
         Button loginButton = findViewById(R.id.login);
         Button registerButton = findViewById(R.id.register);
 
+        Button guestButton = findViewById(R.id.guestButton);
 
-        AuthRepository authRepository = new AuthRepositoryImpl();
+        UserPrefsStorage prefs = new UserPrefsStorage(getApplicationContext());
+        AuthRepositoryImpl authRepository = new AuthRepositoryImpl(prefs);
         loginUseCase = new LoginUseCase(authRepository);
         registerUseCase = new RegisterUseCase(authRepository);
+        setGuestModeUseCase = new SetGuestModeUseCase(authRepository);
 
 
         loginButton.setOnClickListener(v -> handleLogin());
         registerButton.setOnClickListener(v -> handleRegister());
+        guestButton.setOnClickListener(v -> {
+            setGuestModeUseCase.execute();
+            navigateToMainScreen();
+        });
     }
 
     private void handleLogin() {
@@ -127,5 +137,7 @@ public class AuthActivity extends BaseActivity {
         startActivity(intent);
         finish();
     }
+
+
 
 }
