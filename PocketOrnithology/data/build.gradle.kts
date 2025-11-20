@@ -29,6 +29,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    aaptOptions {
+        noCompress("tflite")
+    }
 }
 
 dependencies {
@@ -37,6 +40,8 @@ dependencies {
     implementation(libs.picasso)
     implementation(libs.room.runtime)
     implementation(libs.okhttp)
+    implementation(libs.tensorflow.lite.support)
+    implementation(libs.tensorflow.tensorflow.lite.metadata)
     annotationProcessor(libs.room.compiler)
     implementation(project(":domain"))
     implementation(libs.appcompat)

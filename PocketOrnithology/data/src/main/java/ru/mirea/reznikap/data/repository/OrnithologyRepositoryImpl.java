@@ -1,5 +1,6 @@
 package ru.mirea.reznikap.data.repository;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
@@ -17,6 +18,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import ru.mirea.reznikap.data.mappers.ObservationMapper;
+import ru.mirea.reznikap.data.ml.BirdClassifier;
 import ru.mirea.reznikap.data.models.ObservationData;
 import ru.mirea.reznikap.data.network.ApiClient;
 import ru.mirea.reznikap.data.network.WikipediaApi;
@@ -34,13 +36,46 @@ public class OrnithologyRepositoryImpl implements OrnithologyRepository {
     private final ObservationMapper mapper = new ObservationMapper();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+    private final BirdClassifier birdClassifier;
 
-    public OrnithologyRepositoryImpl(ObservationDao dao) {
+    public OrnithologyRepositoryImpl(ObservationDao dao, Context context) {
         this.observationDao = dao;
         this.wikipediaApi = ApiClient.getClient().create(WikipediaApi.class);
+        this.birdClassifier = new BirdClassifier(context);
     }
 
+
     @Override
+    public void recognizeBird(byte[] imageBytes, RepositoryCallback<String> callback) {
+        executor.execute(() -> {
+            try {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+
+                if (bitmap == null) {
+                    mainThreadHandler.post(() -> callback.onFailure(new Exception("Не удалось декодировать изображение")));
+                    return;
+                }
+
+                String rawResult = birdClassifier.classify(bitmap);
+
+
+                String finalName = rawResult;
+
+                if (rawResult.contains("(")) {
+                    finalName = rawResult.split("\\(")[0].trim();
+                }
+
+                String resultToSend = finalName;
+
+                mainThreadHandler.post(() -> callback.onSuccess(resultToSend));
+
+            } catch (Exception e) {
+                mainThreadHandler.post(() -> callback.onFailure(e));
+            }
+        });
+    }
+
+    /*@Override
     public void recognizeBird(byte[] imageBytes, RepositoryCallback<String> callback) {
         executor.execute(() -> {
             try {
@@ -51,7 +86,7 @@ public class OrnithologyRepositoryImpl implements OrnithologyRepository {
                 mainThreadHandler.post(() -> callback.onFailure(e));
             }
         });
-    }
+    }*/
 
     @Override
     public void getBirdInfo(String birdName, RepositoryCallback<BirdInfo> callback) {

@@ -29,7 +29,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
 
     public ViewModelFactory(Context context) {
         AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
-        this.ornithologyRepository = new OrnithologyRepositoryImpl(db.observationDao());
+        this.ornithologyRepository = new OrnithologyRepositoryImpl(db.observationDao(),context.getApplicationContext());
         UserPrefsStorage userPrefs = new UserPrefsStorage(context);
         this.authRepository = new AuthRepositoryImpl(userPrefs);
     }

@@ -1,6 +1,7 @@
 package ru.mirea.reznikap.pocketornithology.presentation;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,8 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(MainActivity.class.getSimpleName().toString(), "MainActivity created");
+
         setContentView(R.layout.activity_main);
 
         ViewModelFactory factory = new ViewModelFactory(this);
@@ -51,10 +54,8 @@ public class MainActivity extends BaseActivity {
 
         bottomNav.setOnItemReselectedListener(item -> {
             if (item.getItemId() == R.id.nav_recognition) {
-                // Ищем текущий фрагмент в контейнере
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                 if (currentFragment instanceof RecognitionFragment) {
-                    // Вызываем метод сброса
                     ((RecognitionFragment) currentFragment).reset();
                 }
             }
