@@ -50,6 +50,10 @@ public class ObservationAdapter extends RecyclerView.Adapter<ObservationAdapter.
     public void onBindViewHolder(@NonNull ObservationViewHolder holder, int position) {
         holder.bind(observations.get(position), listener);
     }
+    public Observation getObservationAt(int position) {
+        return observations.get(position);
+    }
+
 
     @Override
     public int getItemCount() {

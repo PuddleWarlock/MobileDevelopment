@@ -5,12 +5,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import ru.mirea.reznikap.domain.models.Observation;
 import ru.mirea.reznikap.pocketornithology.R;
 import ru.mirea.reznikap.pocketornithology.presentation.adapters.ObservationAdapter;
 import ru.mirea.reznikap.pocketornithology.presentation.factories.ViewModelFactory;
@@ -44,6 +49,23 @@ public class JournalFragment extends Fragment {
 
         ViewModelFactory factory = new ViewModelFactory(requireContext());
         JournalViewModel viewModel = new ViewModelProvider(this, factory).get(JournalViewModel.class);
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                Observation observationToDelete = adapter.getObservationAt(position);
+                viewModel.deleteObservation(observationToDelete);
+                Toast.makeText(requireContext(), "Запись удалена", Toast.LENGTH_SHORT).show();
+            }
+        }).attachToRecyclerView(recyclerView);
+
+
 
         viewModel.getObservations().observe(getViewLifecycleOwner(), list -> {
             if (list.isEmpty()) {

@@ -58,6 +58,10 @@ public class MainActivity extends BaseActivity {
                 if (currentFragment instanceof RecognitionFragment) {
                     ((RecognitionFragment) currentFragment).reset();
                 }
+            }else if (item.getItemId() == R.id.nav_journal) {
+                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    getSupportFragmentManager().popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                }
             }
         });
 

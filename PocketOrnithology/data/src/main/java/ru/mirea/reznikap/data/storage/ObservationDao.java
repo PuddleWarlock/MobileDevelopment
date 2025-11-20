@@ -19,4 +19,7 @@ public interface ObservationDao {
 
     @Query("SELECT * FROM observations WHERE id = :id LIMIT 1")
     ObservationData getById(int id);
+
+    @Query("DELETE FROM observations WHERE id = :id")
+    void deleteById(int id);
 }

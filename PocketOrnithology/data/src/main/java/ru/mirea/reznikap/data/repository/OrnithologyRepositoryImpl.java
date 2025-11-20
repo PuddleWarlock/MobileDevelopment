@@ -96,20 +96,54 @@ public class OrnithologyRepositoryImpl implements OrnithologyRepository {
                 if (response.isSuccessful() && response.body() != null && response.body().query.pages != null) {
                     WikipediaDto.Page page = response.body().query.pages.values().iterator().next();
 
-
                     String imageUrl = "";
                     if (page.thumbnail != null) {
                         imageUrl = page.thumbnail.source;
-                        Log.d("WikiImage", "Ссылка на фото: " + imageUrl);
-                    }else {
-                        Log.d("WikiImage", "У этой статьи нет thumbnail (миниатюры)");
                     }
 
+                    String fullText = page.extract;
+                    StringBuilder finalDescription = new StringBuilder();
 
-                    BirdInfo info = new BirdInfo(page.title, page.extract, imageUrl);
+                    if (fullText != null) {
+                        int firstHeaderIndex = fullText.indexOf("==");
+
+                        if (firstHeaderIndex != -1) {
+                            String intro = fullText.substring(0, firstHeaderIndex).trim();
+                            finalDescription.append(intro);
+                        } else {
+                            finalDescription.append(fullText);
+                        }
+
+                        String targetHeader = "== Описание ==";
+                        if (!fullText.contains(targetHeader)) {
+                            targetHeader = "== Внешний вид ==";
+                        }
+
+                        if (fullText.contains(targetHeader)) {
+                            int startIndex = fullText.indexOf(targetHeader) + targetHeader.length();
+                            int endIndex = fullText.indexOf("==", startIndex);
+
+                            String descriptionPart;
+                            if (endIndex != -1) {
+                                descriptionPart = fullText.substring(startIndex, endIndex).trim();
+                            } else {
+                                descriptionPart = fullText.substring(startIndex).trim();
+                            }
+
+
+                            finalDescription.append("\n\n")
+                                    .append(targetHeader.replace("==", "").trim())
+                                    .append(":\n")
+                                    .append(descriptionPart);
+                        }
+                    } else {
+                        finalDescription.append("Описание отсутствует.");
+                    }
+
+                    BirdInfo info = new BirdInfo(page.title, finalDescription.toString(), imageUrl);
                     callback.onSuccess(info);
                 } else {
-                    callback.onFailure(new Exception("API Error: " + response.code()));
+                    callback.onFailure(new Exception("Птица не найдена в энциклопедии: " + response.code()));
                 }
             }
 
@@ -153,6 +187,18 @@ public class OrnithologyRepositoryImpl implements OrnithologyRepository {
                 ObservationData data = observationDao.getById(id);
                 Observation observation = mapper.mapToDomain(data);
                 mainThreadHandler.post(() -> callback.onSuccess(observation));
+            } catch (Exception e) {
+                mainThreadHandler.post(() -> callback.onFailure(e));
+            }
+        });
+    }
+
+    @Override
+    public void deleteObservation(int id, RepositoryCallback<Void> callback) {
+        executor.execute(() -> {
+            try {
+                observationDao.deleteById(id);
+                mainThreadHandler.post(() -> callback.onSuccess(null));
             } catch (Exception e) {
                 mainThreadHandler.post(() -> callback.onFailure(e));
             }

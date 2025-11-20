@@ -10,6 +10,6 @@ import retrofit2.http.Query;
 
 public interface WikipediaApi {
 
-    @GET("api.php?action=query&prop=extracts|pageimages&redirects=1&exintro&explaintext&pithumbsize=500&format=json")
+    @GET("api.php?action=query&prop=extracts|pageimages&redirects=1&explaintext&pithumbsize=500&format=json")
     Call<WikipediaDto> getBirdExtract(@Query("titles") String birdName);
 }
